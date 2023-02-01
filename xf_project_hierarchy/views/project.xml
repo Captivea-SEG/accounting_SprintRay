@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data> <!--  noupdate="1" -->
+        <record id="project_hierarchy" model="ir.ui.view">
+            <field name="name">project_hierarchy</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="model">project.project</field>
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button class="oe_stat_button" type="object" name="action_view_sub_projects" icon="fa-bars"
+                            attrs="{'invisible': [('count_child_ids', '=', 0)]}">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="count_child_ids"/>
+                            </span>
+                            <span class="o_stat_text">Sub-Projects</span>
+                        </div>
+                    </button>
+                </div>
+                <field name="partner_id" position="before">
+                    <field name="is_partner_required" invisible="True"/>
+                    <field name="parent_id" domain="[('id', '!=', id), ('id', 'not in', child_ids)]"/>
+                </field>
+                <field name="partner_id" position="attributes">
+                    <attribute name="attrs">{'required':[('is_partner_required', '=', True)]}</attribute>
+                </field>
+                <page name="settings" position="before">
+                    <page name="subprojects" string="Sub-projects" attrs="{'invisible':[('allow_subprojects', '!=', True)]}">
+                        <field name="child_ids" nolabel="1" context="{'default_parent_id': active_id}">
+                            <tree>
+                                <field name="sequence" invisible="True"/>
+                                <field name="name"/>
+                                <field name="user_id"/>
+                                <field name="partner_id"/>
+                                <field name="percentage" optional="show" sum="Total"/>
+                            </tree>
+                        </field>
+                        <field name="allow_subprojects" invisible="True"/>
+                    </page>
+                </page>
+                <field name="privacy_visibility" position="after">
+                    <field name="percentage" attrs="{'invisible':[('allow_subprojects', '!=', True)]}"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_subproject_kanban">
+            <field name="name">view_subproject_kanban</field>
+            <field name="inherit_id" ref="project.view_project_kanban"/>
+            <field name="model">project.project</field>
+            <field name="arch" type="xml">
+                <field name="task_count" position="after">
+                    <field name="count_child_ids"/>
+                </field>
+                <xpath expr="//div[hasclass('o_primary')]" position="inside">
+                    <field t-if="record.percentage.raw_value>0" name="percentage" widget="progressbar"/>
+                </xpath>
+                <xpath expr="//div[hasclass('o_project_kanban_boxes')]" position="inside">
+                    <a t-if="record.count_child_ids.raw_value>0" class="o_project_kanban_box" name="action_view_sub_projects" type="object">
+                        <div>
+                            <span class="o_value">
+                                <t t-esc="record.count_child_ids.value"/>
+                            </span>
+                            <span class="o_label">
+                                Sub-Projects
+                            </span>
+                        </div>
+                    </a>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_subproject_tree" model="ir.ui.view">
+            <field name="inherit_id" ref="project.view_project"/>
+            <field name="name">view_subproject_tree</field>
+            <field name="model">project.project</field>
+            <field name="arch" type="xml">
+                <field name="stage_id" position="before">
+                    <field name="percentage" widget="progressbar" optional="hide"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_project_subproject_filter" model="ir.ui.view">
+            <field name="inherit_id" ref="project.view_project_project_filter"/>
+            <field name="name">view_project_subproject_filter</field>
+            <field name="model">project.project</field>
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field name="parent_id" filter_domain="[('parent_id', 'child_of', self)]"/>
+                </field>
+                <filter name="groupby_stage" position="after">
+                    <filter string="Parent Project" name="groupby_parent" context="{'group_by': 'parent_id'}"/>
+                </filter>
+            </field>
+        </record>
+
+        <record id="open_view_subproject_all_group_parent" model="ir.actions.act_window">
+            <field name="name">Sub-Projects</field>
+            <field name="res_model">project.project</field>
+            <field name="domain">[]</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_id" ref="project.view_project_kanban"/>
+            <field name="search_view_id" ref="project.view_project_project_filter"/>
+            <field name="target">main</field>
+            <field name="context">{'search_default_groupby_parent': 1}</field>
+            <field name="domain">[('parent_id', '!=', False)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No projects found. Let's create one!
+                </p>
+            </field>
+        </record>
+
+        <menuitem action="open_view_subproject_all_group_parent"
+                  id="menu_subprojects_group_parent"
+                  name="Sub-Projects"
+                  parent="project.menu_main_pm"
+                  sequence="2"
+        />
+    </data>
+</odoo>

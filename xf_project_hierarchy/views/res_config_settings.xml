@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_xf_project_hierarchy" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.xf.project.hierarchy</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="project.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='project']" position="inside">
+                <h2>Projects Management</h2>
+                <div class="row mt16 o_settings_container" id="projects_management">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="allow_subprojects"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="allow_subprojects"/>
+                            <div class="text-muted">
+                                Split your projects to organize your work into sub-projects
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box" id="project_partner_required">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="project_partner_required"/>
+                            <span class="fa fa-lg fa-building-o" title="Values set here are company-specific."
+                                  aria-label="Values set here are company-specific." groups="base.group_multi_company"
+                                  role="img"/>
+                            <div class="text-muted">
+                                Is partner (customer) required for your projects
+                            </div>
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <field name="project_partner_required" class="o_light_label" widget="radio"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
